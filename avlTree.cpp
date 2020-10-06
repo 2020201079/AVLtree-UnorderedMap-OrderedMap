@@ -58,6 +58,7 @@ class AVLTree{
         int balFactor(Node* root);
         Node* balance(Node*root); // passing the element which is just inserted
         Node* searchHelper(Node* root,int x);
+        void upperBoundHelper(Node* root,int x,Node* &ub);
     public:
         Node* root;
         AVLTree(){
@@ -77,17 +78,35 @@ class AVLTree{
 };
 
 int AVLTree::lowerBound(int x){
-    Node* temp = root;
-    while(1){
-        if(x = temp->data){
-            return x;
-        }
-        else if(x > temp->data){
-            temp = temp->right;
-        }
-        else{
-            return temp->data;
-        }
+    Node* lb = searchHelper(root,x);
+    if(lb == nullptr){
+        return upperBound(x);
+    }
+    else
+        return lb->data;
+}
+
+void AVLTree::upperBoundHelper(Node* root,int x,Node* &ub){
+    if(root==nullptr){
+        return;
+    }
+    else if(root->data>x){
+        ub=root;
+        upperBoundHelper(root->left,x,ub);
+    }
+    else{
+        upperBoundHelper(root->right,x,ub);
+    }
+}
+int AVLTree::upperBound(int x){
+    Node* ub = nullptr;
+    upperBoundHelper(root,x,ub);
+    if(ub==nullptr){
+        cout<<"No upper bound "<<endl;
+        return -1;
+    }
+    else{
+        return ub->data;
     }
 }
 
@@ -314,24 +333,10 @@ int main(){
     tree.insert(45);tree.insert(50);tree.insert(50);
     tree.printInorder();
     cout<<"Height is : "<<tree.height(tree.root)<<endl;
-    cout<<"occurrences :"<<tree.countOccurrences(50)<<endl;
     
-    tree.del(50);
-    cout<<"After deleting 50 "<<endl;
-    tree.printInorder();
-    cout<<"Height is : "<<tree.height(tree.root)<<endl;
-    cout<<"occurrences :"<<tree.countOccurrences(50)<<endl;
-    
-    tree.del(50);
-    cout<<"After deleting 50 "<<endl;
-    tree.printInorder();
-    cout<<"Height is : "<<tree.height(tree.root)<<endl;
-    cout<<"occurrences :"<<tree.countOccurrences(50)<<endl;
-
-    tree.del(50);
-    cout<<"After deleting 50 "<<endl;
-    tree.printInorder();
-    cout<<"Height is : "<<tree.height(tree.root)<<endl;
-    cout<<"occurrences :"<<tree.countOccurrences(50)<<endl;
+    cout<<"42 ub:"<<tree.upperBound(42)<<" lb:"<<tree.lowerBound(42)<<endl;
+    cout<<"50 ub:"<<tree.upperBound(50)<<" lb:"<<tree.lowerBound(50)<<endl;
+    cout<<"30 ub:"<<tree.upperBound(30)<<" lb:"<<tree.lowerBound(30)<<endl;
+    cout<<"45 ub:"<<tree.upperBound(45)<<" lb:"<<tree.lowerBound(45)<<endl;
+    cout<<"53 ub:"<<tree.upperBound(53)<<" lb:"<<tree.lowerBound(53)<<endl;
 }
-
