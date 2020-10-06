@@ -319,7 +319,8 @@ void AVLTree::printInorderHelper(Node* root){
         else{
             predValue = pred->data;
         }
-        cout<<root->data<<":"<<predValue<<" ";
+        //cout<<root->data<<":"<<predValue<<" ";
+        cout<<root->data<<" ";
         printInorderHelper(root->right);
     }
 }
@@ -328,15 +329,18 @@ void AVLTree::printInorder(){
 }
 
 int main(){
-    AVLTree tree = AVLTree();
-    tree.insert(50);tree.insert(40);tree.insert(60);
-    tree.insert(45);tree.insert(50);tree.insert(50);
-    tree.printInorder();
-    cout<<"Height is : "<<tree.height(tree.root)<<endl;
-    
-    cout<<"42 ub:"<<tree.upperBound(42)<<" lb:"<<tree.lowerBound(42)<<endl;
-    cout<<"50 ub:"<<tree.upperBound(50)<<" lb:"<<tree.lowerBound(50)<<endl;
-    cout<<"30 ub:"<<tree.upperBound(30)<<" lb:"<<tree.lowerBound(30)<<endl;
-    cout<<"45 ub:"<<tree.upperBound(45)<<" lb:"<<tree.lowerBound(45)<<endl;
-    cout<<"53 ub:"<<tree.upperBound(53)<<" lb:"<<tree.lowerBound(53)<<endl;
+    AVLTree a = AVLTree();
+    int n = 10;
+    for (int i = 1; i <= n; i ++) a.insert(i);
+        a.printInorder();
+        cout << endl;
+
+    for(int i=1; i<=n; i++)
+        cout<<a.search(i)<<" ";
+
+    for(int i=1; i<=n; i++)
+        a.del(i);
+
+    a.printInorder();
+    cout << endl;
 }
