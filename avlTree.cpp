@@ -15,7 +15,6 @@ class Node{
             this->count = 1; 
         }
 };
-//check in git
 
 Node* getPredecessor(Node* root){
     if(root == nullptr){
