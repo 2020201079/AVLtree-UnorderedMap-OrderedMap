@@ -388,7 +388,7 @@ void AVLTree<T,Comp>::printInorder(){
 }
 
 int main(){
-    
+/*    
     AVLTree<Student> a = AVLTree<Student>();
     a.insert(Student("varun",60));
     a.insert(Student("utkarsh",50));
@@ -398,6 +398,16 @@ int main(){
     a.insert(Student("Sireesha",70));
     a.insert(Student("Nishanth",55));
     a.insert(Student("Sachin",42));
+*/
+    AVLTree<string> a = AVLTree<string>();
+    a.insert("Varun");
+    a.insert("Utkarsh");
+    a.insert("Anchal");
+    a.insert("Pandu");
+    a.insert("Jaanu");
+    a.insert("Sireesha");
+    a.insert("Nishanth");
+    a.insert("Sachin");
 
     a.printInorder();
     cout<<endl;
