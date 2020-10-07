@@ -1,11 +1,33 @@
 #include<iostream>
+#include<string>
 
 using namespace std;
+
+class Student{
+    public:
+        string name;
+        int age;
+        Student(){}; // should have a default constructor
+        Student(string name,int age){
+            this->name=name;
+            this->age=age;
+        }
+        bool operator<(const Student& s) { // must overload < and >
+            return age<s.age;
+        }
+        bool operator>(const Student& s) {
+            return age>s.age;
+        }
+};
+// must overload << operator for new class
+std::ostream &operator<<(std::ostream &os, Student const &s) { 
+    return os <<s.name<<" "<<s.age;
+}
 
 template<typename T>
 class Greater{
     public:
-    bool operator() (const T& x,const T& y){
+    bool operator() ( T& x, T& y){
         return x>y;
     }
 };
@@ -13,8 +35,8 @@ class Greater{
 template<typename T>
 class Less{
     public:
-    bool operator() (const T& x,const T& y){
-        return x<y;
+    bool operator() ( T& x, T& y){
+        return (x<y);
     }
 };
 
@@ -355,15 +377,6 @@ void AVLTree<T,Comp>::printInorderHelper(Node<T>* root){
     }
     else{
         printInorderHelper(root->left);
-        Node<T>* pred = getPredecessor(root);
-        T predValue;
-        if(pred == nullptr){
-            predValue = -1;
-        }
-        else{
-            predValue = pred->data;
-        }
-        //cout<<root->data<<":"<<predValue<<" ";
         for(int i=0;i<root->count;i++)
             cout<<root->data<<" ";
         printInorderHelper(root->right);
@@ -375,14 +388,37 @@ void AVLTree<T,Comp>::printInorder(){
 }
 
 int main(){
-    AVLTree<int> a = AVLTree<int>();
-    for(int i=0;i<=10;i++){
-        a.insert(i);
-    }
-    a.printInorder();cout<<endl;
+    
+    AVLTree<Student> a = AVLTree<Student>();
+    a.insert(Student("varun",60));
+    a.insert(Student("utkarsh",50));
+    a.insert(Student("anchal",45));
+    a.insert(Student("Pandu",25));
+    a.insert(Student("Jaanu",24));
+    a.insert(Student("Sireesha",70));
+    a.insert(Student("Nishanth",55));
+    a.insert(Student("Sachin",42));
 
-    for(int i=-3;i<=7;i++){
-        cout<<a.search(i)<<" ";
+    a.printInorder();
+    cout<<endl;
+    cout<<endl;
+    
+    AVLTree<float> treeFloat = AVLTree<float>();
+    for(int i=1;i<11;i++){
+        treeFloat.insert(i+i*0.2);
     }
-    cout << endl;
+    for(int i=1;i<11;i++){
+        treeFloat.insert(i+i*0.2);
+    }
+    treeFloat.printInorder();
+    cout<<endl;
+    for(int i=1;i<11;i+=2){
+        treeFloat.del(i+i*0.2);
+    }
+    treeFloat.printInorder();
+    cout<<endl;
+    cout<<"3 lb :"<< treeFloat.lowerBound(3)<<" ub :"<<treeFloat.upperBound(3)<<endl;
+    cout<<"4 lb :"<< treeFloat.lowerBound(4)<<" ub :"<<treeFloat.upperBound(4)<<endl;
+    cout<<"5 lb :"<< treeFloat.lowerBound(5)<<" ub :"<<treeFloat.upperBound(5)<<endl;
+    cout<<"6 lb :"<< treeFloat.lowerBound(6)<<" ub :"<<treeFloat.upperBound(6)<<endl;
 }
