@@ -3,6 +3,22 @@
 using namespace std;
 
 template<typename T>
+class Greater{
+    public:
+    bool operator() (const T& x,const T& y){
+        return x>y;
+    }
+};
+
+template<typename T>
+class Less{
+    public:
+    bool operator() (const T& x,const T& y){
+        return x<y;
+    }
+};
+
+template<typename T>
 class Node{
     public:
         Node* left;
@@ -26,7 +42,7 @@ Node<T>* getPredecessor(Node<T>* root){
     else if(root->left == nullptr)
         return nullptr;
     else{
-        Node* temp = root->left;
+        Node<T>* temp = root->left;
         while(temp->right != nullptr)
             temp = temp->right;
         return temp;
@@ -49,15 +65,16 @@ Node<T>* getSuccessor(Node<T>* root){
     }
 }
 
-template<typename T>
+template<typename T,typename Comp=Less<T>>
 class AVLTree{
     private:
+        Comp comp; 
         Node<T>* llRotation(Node<T>* root);
         Node<T>* lrRotation(Node<T>* root);
         Node<T>* rrRotation(Node<T>* root);
         Node<T>* rlRotation(Node<T>* root);
         Node<T>* insertionHelper(Node<T>* root,T x);
-        Node<T>* delHelper(Node* root,T x);
+        Node<T>* delHelper(Node<T>* root,T x);
         void printInorderHelper(Node<T>* root);
         int balFactor(Node<T>* root);
         Node<T>* balance(Node<T>*root); // passing the element which is just inserted
@@ -81,8 +98,8 @@ class AVLTree{
         int height(Node<T>* root);
 };
 
-template<typename T>
-T AVLTree<T>::lowerBound(T x){
+template<typename T,typename Comp>
+T AVLTree<T,Comp>::lowerBound(T x){
     Node<T>* lb = searchHelper(root,x);
     if(lb == nullptr){
         return upperBound(x);
@@ -91,12 +108,12 @@ T AVLTree<T>::lowerBound(T x){
         return lb->data;
 }
 
-template<typename T>
-void AVLTree<T>::upperBoundHelper(Node<T>* root,T x,Node<T>* &ub){
+template<typename T,typename Comp>
+void AVLTree<T,Comp>::upperBoundHelper(Node<T>* root,T x,Node<T>* &ub){
     if(root==nullptr){
         return;
     }
-    else if(root->data>x){
+    else if(comp(x,root->data)){
         ub=root;
         upperBoundHelper(root->left,x,ub);
     }
@@ -105,8 +122,9 @@ void AVLTree<T>::upperBoundHelper(Node<T>* root,T x,Node<T>* &ub){
     }
 }
 
-int AVLTree::upperBound(int x){
-    Node* ub = nullptr;
+template<typename T,typename Comp>
+T AVLTree<T,Comp>::upperBound(T x){
+    Node<T>* ub = nullptr;
     upperBoundHelper(root,x,ub);
     if(ub==nullptr){
         cout<<"No upper bound "<<endl;
@@ -117,35 +135,39 @@ int AVLTree::upperBound(int x){
     }
 }
 
-int AVLTree::countOccurrences(int x){
-    Node* currNode = searchHelper(root,x);
+template<typename T,typename Comp>
+int AVLTree<T,Comp>::countOccurrences(T x){
+    Node<T>* currNode = searchHelper(root,x);
     if(currNode == nullptr)
         return 0;
     else
         return currNode->count;
 }
 
-Node* AVLTree::searchHelper(Node* root,int x){
+template<typename T,typename Comp>
+Node<T>* AVLTree<T,Comp>::searchHelper(Node<T>* root,T x){
     if(root == nullptr){
         return nullptr;
     }
-    else if(x<root->data){
+    else if(comp(x,root->data)){
         return searchHelper(root->left,x);
     }
-    else if(x>root->data){
+    else if(comp(root->data,x)){
         return searchHelper(root->right,x);
     }
     return root;
 }
-bool AVLTree::search(int x){
-    Node* result= searchHelper(root,x);
+template<typename T,typename Comp>
+bool AVLTree<T,Comp>::search(T x){
+    Node<T>* result= searchHelper(root,x);
     if(result==nullptr)
         return false;
     return true;
 }
 
-void AVLTree::del(int x){
-    Node* currNode = searchHelper(root,x);
+template<typename T,typename Comp>
+void AVLTree<T,Comp>::del(T x){
+    Node<T>* currNode = searchHelper(root,x);
     if(currNode == nullptr){
         cout<<x<<" is not present in tree to delete"<<endl;
         return;
@@ -159,17 +181,20 @@ void AVLTree::del(int x){
         //cout<<"deleted"<<x<<endl;
     }
 }
-Node* AVLTree::delHelper(Node* root,int x){
+template<typename T,typename Comp>
+Node<T>* AVLTree<T,Comp>::delHelper(Node<T>* root,T x){
     if(root == nullptr){
         cout<<x<<" does not exists in tree"<<endl;
         return root;
     }
-    else if(x > root->data){
+    //else if(x > root->data){
+    else if(comp(root->data,x)){
         //cout<<" right "<<endl;
         root->right = delHelper(root->right,x);
         root = balance(root);
     }
-    else if(x < root->data){
+    //else if(x < root->data){
+    else if(comp(x,root->data)){
         //cout<<" left "<<endl;
         root->left = delHelper(root->left,x);
         root = balance(root);
@@ -182,17 +207,17 @@ Node* AVLTree::delHelper(Node* root,int x){
         }
         else if(root->right == nullptr && root->left !=nullptr){
             //cout<<"entered right null left not null "<<endl;
-            Node* temp = root->left;
+            Node<T>* temp = root->left;
             free(root);
             return temp;
         }
         else if(root->right != nullptr && root->left == nullptr){
-            Node* temp = root->right;
+            Node<T>* temp = root->right;
             free(root);
             return temp;
         }
         else{ // case where both children are present
-            Node* pred = getPredecessor(root);
+            Node<T>* pred = getPredecessor(root);
             root->data = pred->data;
             root->left = delHelper(root->left,pred->data);
             root = balance(root);
@@ -201,8 +226,9 @@ Node* AVLTree::delHelper(Node* root,int x){
     return root;
 }
 
-void AVLTree::insert(int x){
-    Node* currNode = searchHelper(root,x);
+template<typename T,typename Comp>
+void AVLTree<T,Comp>::insert(T x){
+    Node<T>* currNode = searchHelper(root,x);
     if(currNode != nullptr){
         currNode->count++;
         //cout<<"Incremented instance of "<<x<<endl;
@@ -213,19 +239,21 @@ void AVLTree::insert(int x){
         //cout<<"Inserted "<<x<<endl;
     }
 }
-
-Node* AVLTree::insertionHelper(Node* root,int x)
+template<typename T,typename Comp>
+Node<T>* AVLTree<T,Comp>::insertionHelper(Node<T>* root,T x)
 {
     if(root == nullptr){
-        root = new Node(x);
+        root = new Node<T>(x);
         return root;
     }
-    else if(x<root->data){
+    //else if(x<root->data){
+    else if(comp(x,root->data)){
         //insert left
         root->left = insertionHelper(root->left,x);
         root = balance(root);
     }
-    else if(x>root->data){
+    //else if(x>root->data){
+    else if(comp(root->data,x)){
         //insert right
         root->right = insertionHelper(root->right,x);
         root = balance(root);
@@ -233,13 +261,15 @@ Node* AVLTree::insertionHelper(Node* root,int x)
     return root;
 }
 
-int AVLTree::balFactor(Node* root){
+template<typename T,typename Comp>
+int AVLTree<T,Comp>::balFactor(Node<T>* root){
     int hl = height(root->left);
     int hr = height(root->right);
     return hl-hr;
 }
 
-Node* AVLTree::balance(Node* root){
+template<typename T,typename Comp>
+Node<T>* AVLTree<T,Comp>::balance(Node<T>* root){
     int bf = balFactor(root);
     if(bf>1){
         if(balFactor(root->left)>0){
@@ -260,18 +290,20 @@ Node* AVLTree::balance(Node* root){
     return root;
 }
 
-Node* AVLTree::rrRotation(Node* root){
+template<typename T,typename Comp>
+Node<T>* AVLTree<T,Comp>::rrRotation(Node<T>* root){
     //cout<<"rr is called with root as "<<root->data<<endl;
-    Node* temp = root->right;
+    Node<T>* temp = root->right;
     root->right = temp->left;
     temp->left = root;
     return temp;
 }
 
-Node* AVLTree::rlRotation(Node* root){
+template<typename T,typename Comp>
+Node<T>* AVLTree<T,Comp>::rlRotation(Node<T>* root){
     //cout<<"rl is called with root as "<<root->data<<endl;
-    Node* temp1 = root->right->left;
-    Node* temp2 = root->right;
+    Node<T>* temp1 = root->right->left;
+    Node<T>* temp2 = root->right;
     temp2->left = temp1->right;
     root->right = temp1->left;
     temp1->left = root;
@@ -279,18 +311,20 @@ Node* AVLTree::rlRotation(Node* root){
     return temp1;
 }
 
-Node* AVLTree::llRotation(Node* root){
+template<typename T,typename Comp>
+Node<T>* AVLTree<T,Comp>::llRotation(Node<T>* root){
     //cout<<"ll is called with root as "<<root->data<<endl;
-    Node* temp = root->left;
+    Node<T>* temp = root->left;
     root->left = temp->right;
     temp->right = root;
     return temp;
 }
 
-Node* AVLTree::lrRotation(Node* root){
+template<typename T,typename Comp>
+Node<T>* AVLTree<T,Comp>::lrRotation(Node<T>* root){
     //cout<<"lr is called with root as "<<root->data<<endl;
-    Node* temp1 = root->left->right; // have to return this finally
-    Node* temp2 = root->left;
+    Node<T>* temp1 = root->left->right; // have to return this finally
+    Node<T>* temp2 = root->left;
     temp2->right = temp1->left;
     root->left = temp1->right;
     temp1->left = temp2;
@@ -298,13 +332,15 @@ Node* AVLTree::lrRotation(Node* root){
     return temp1;
 }
 
+
 int max(int a,int b){
     if(a>b)
         return a;
     return b;
 }
 
-int AVLTree::height(Node* root){
+template<typename T,typename Comp>
+int AVLTree<T,Comp>::height(Node<T>* root){
     if(root == nullptr)
         return 0;
     int hr = height(root->right);
@@ -312,14 +348,15 @@ int AVLTree::height(Node* root){
     return 1+max(hr,hl);
 }
 
-void AVLTree::printInorderHelper(Node* root){
+template<typename T,typename Comp>
+void AVLTree<T,Comp>::printInorderHelper(Node<T>* root){
     if(root == nullptr){
         return;
     }
     else{
         printInorderHelper(root->left);
-        Node* pred = getPredecessor(root);
-        int predValue;
+        Node<T>* pred = getPredecessor(root);
+        T predValue;
         if(pred == nullptr){
             predValue = -1;
         }
@@ -327,27 +364,25 @@ void AVLTree::printInorderHelper(Node* root){
             predValue = pred->data;
         }
         //cout<<root->data<<":"<<predValue<<" ";
-        cout<<root->data<<" ";
+        for(int i=0;i<root->count;i++)
+            cout<<root->data<<" ";
         printInorderHelper(root->right);
     }
 }
-void AVLTree::printInorder(){
+template<typename T,typename Comp>
+void AVLTree<T,Comp>::printInorder(){
     printInorderHelper(root);
 }
 
 int main(){
-    AVLTree a = AVLTree();
-    int n = 10;
-    for (int i = 1; i <= n; i ++) a.insert(i);
-        a.printInorder();
-        cout << endl;
+    AVLTree<int> a = AVLTree<int>();
+    for(int i=0;i<=10;i++){
+        a.insert(i);
+    }
+    a.printInorder();cout<<endl;
 
-    for(int i=1; i<=n; i++)
+    for(int i=-3;i<=7;i++){
         cout<<a.search(i)<<" ";
-
-    for(int i=1; i<=n; i++)
-        a.del(i);
-
-    a.printInorder();
+    }
     cout << endl;
 }
